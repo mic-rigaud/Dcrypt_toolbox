@@ -29,47 +29,32 @@ from pypsi.plugins.cmd import CmdPlugin
 from pypsi.plugins.block import BlockPlugin
 from pypsi.plugins.hexcode import HexCodePlugin
 from pypsi.commands.macro import MacroCommand
-from pypsi.commands.system import SystemCommand
 from pypsi.plugins.multiline import MultilinePlugin
-from pypsi.commands.xargs import XArgsCommand
 from pypsi.commands.exit import ExitCommand
 from pypsi.plugins.variable import VariablePlugin
 from pypsi.plugins.history import HistoryPlugin
-from pypsi.plugins.alias import AliasPlugin
 from pypsi.commands.echo import EchoCommand
-from pypsi.commands.include import IncludeCommand
 from pypsi.commands.help import HelpCommand, Topic
 from pypsi.commands.tip import TipCommand
 from pypsi.commands.tail import TailCommand
-from pypsi.commands.chdir import ChdirCommand
-from pypsi.commands.pwd import PwdCommand
 from pypsi.plugins.comment import CommentPlugin
-
 from pypsi import wizard as wiz
-from pypsi.format import Table, Column, title_str
 from pypsi.completers import path_completer
-
-
 from pypsi.ansi import AnsiCodes
 from pypsi import topics
-
 from pypsi.os import find_bins_in_path
 
 import sys
 from plugins import *
+import os
+import imp
+
+ShellTopic = """Dcrypt_toolbox is an open Source tool to decrypt cypher text
+This tool permit to solve simple algorithm as Cesar,Vigenere,etc...
+"""
 
 
-ShellTopic = """These commands are built into the Pypsi shell (all glory and honor to the pypsi shell).
-This is a single newline
-
-and This is a double"""
-
-
-class DemoShell(Shell):
-    '''
-    Example demonstration shell.
-    '''
-
+class MainShell(Shell):
     # First, add commands and plugins to the shell
     echo_cmd = EchoCommand()
     block_plugin = BlockPlugin()
@@ -90,31 +75,23 @@ class DemoShell(Shell):
 
     def __init__(self):
         # You must call the Shell.__init__() method.
-        super(DemoShell, self).__init__()
-
+        super(MainShell, self).__init__()
+        print(ShellTopic)
         self.prompt = "{cyan}Dcrypt_toolbox{r} {green}>{r} ".format(
             gray=AnsiCodes.gray.prompt(), r=AnsiCodes.reset.prompt(),
             cyan=AnsiCodes.cyan.prompt(), green=AnsiCodes.green.prompt()
         )
-        # self.fallback_cmd = self.system_cmd
-
-        # Register the shell topic for the help command
-        self.help_cmd.add_topic(self, Topic("shell", "Builtin Shell Commands"))
-        # Add the I/O redirection topic
-        self.help_cmd.add_topic(self, topics.IoRedirection)
-
         self._sys_bins = None
-        plugin_cesar = cesar.Cesar()
-        self.register(plugin_cesar)
+        ### Permet de Load les Plugins
+        possibleplugins = os.listdir('./plugins')
+        for i in possibleplugins:
+            if "__" not in i:
+                module = i.split('.py')[0]
+                plugin = eval(module).Start()
+                self.register(plugin)
+        self._sys_bins = None
 
 
-
-
-
-    ############################################################################
-    # This functions demonstrate that existing Python :mod:`cmd` shell commands
-    # work without modification in Pypsi.
-    ############################################################################
     def do_cmddoc(self, args):
         '''
         This is some long description for the cmdargs command.
@@ -126,7 +103,7 @@ class DemoShell(Shell):
         print("this is the help message for the cmdout command")
 
     def do_cmdout(self, args):
-        print(self.plugins)
+        print("do_cmdout(", args, ")")
         return 0
 
     def get_command_name_completions(self, prefix):
@@ -140,6 +117,6 @@ class DemoShell(Shell):
 
 
 if __name__ == '__main__':
-    shell = DemoShell()
+    shell = MainShell()
     rc = shell.cmdloop()
     sys.exit(rc)
