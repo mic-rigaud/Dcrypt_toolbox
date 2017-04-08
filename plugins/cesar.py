@@ -48,7 +48,7 @@ class CesarShell(Shell):
 
     def do_go(self, args):
         '''
-        Run Cesar algorithme
+        Lance le brute force de l'algo Cesar
         '''
         try:
             file = open(self.file_in, "r")
@@ -60,14 +60,14 @@ class CesarShell(Shell):
                 print(self.crack(ciphered, self.offset))
             file.close()
         except:
-            print("*** Bad file. Usage: FileIn <file>")
+            print("*** Mauvais Fichier. Usage: setFileIn <file>")
 
 
     def crack(self, ciphered, offset):
         line=""
-        line += "########################## \n"
+        line += "########################################\n"
         line += "Resultat avec l'offset: " + str(offset)
-        line += "\n##########################\n"
+        line += "\n########################################\n"
         for cipheredLine in ciphered:
             for cipheredWord in cipheredLine.replace('\n','').split():
                 line += self.rot(cipheredWord, offset)
@@ -75,15 +75,15 @@ class CesarShell(Shell):
             line += "\n"
         return line
 
-    def do_fileIn(self, args):
+    def do_setFileIn(self, args):
         '''
-        Change the file input
+        Change le fichier d'entrée
         '''
         self.file_in = args
 
     def do_changeRotation(self,args):
         '''
-        If you know the offset. (0 if you don't know)
+        Si l'offset est connue. (0 if you don't know)
         '''
         self.offset = args
 
